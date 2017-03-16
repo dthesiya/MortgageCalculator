@@ -2,6 +2,7 @@ package com.example.lab2.mortgagecalculator;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
@@ -47,7 +49,7 @@ public class MapFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
@@ -73,13 +75,33 @@ public class MapFragment extends Fragment {
                 // For dropping a marker at a point on the Map
                 LatLng sydney = new LatLng(-34, 151);
                 googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
+                googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                      private final View window = inflater.inflate(R.layout.custom_window, null);
+
+                      @Override
+                      public View getInfoWindow(Marker marker) {
+
+                          return window;
+                      }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+                        //this method is not called if getInfoWindow(Marker) does not return null
+                        return null;
+                    }
+
+                  });
 
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         });
-
         return rootView;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 }
