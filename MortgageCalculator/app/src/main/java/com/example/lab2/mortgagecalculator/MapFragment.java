@@ -2,6 +2,7 @@ package com.example.lab2.mortgagecalculator;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,6 +25,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.Properties;
 
+/**
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link MapFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link MapFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
 public class MapFragment extends Fragment {
 
     MapView mMapView;
@@ -168,5 +177,10 @@ public class MapFragment extends Fragment {
         properties.add(p1);
         properties.add(p2);
         properties.add(p3);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 }
