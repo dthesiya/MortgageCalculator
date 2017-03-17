@@ -11,4 +11,14 @@
     </string-array>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+
+    <!--Info window text-->
+    <string name="type">Property Type:</string>
+    <string name="address">Street Address:</string>
+    <string name="city">City:</string>
+    <string name="loan_amnt">Load Amount:</string>
+    <string name="apr">APR:</string>
+    <string name="monthly_pay">Monthly Payment</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
 </resources>
