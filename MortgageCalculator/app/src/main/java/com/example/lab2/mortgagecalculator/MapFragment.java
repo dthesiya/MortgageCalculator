@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -120,7 +122,7 @@ public class MapFragment extends Fragment {
 
         @Override
         public View getInfoContents(Marker marker) {
-            Property property = (Property)marker.getTag();
+            final Property property = (Property)marker.getTag();
             TextView type = ((TextView)myContentsView.findViewById(R.id.typeVal));
             type.setText(property.getType());
 
@@ -138,6 +140,15 @@ public class MapFragment extends Fragment {
 
             TextView monthly_pay = ((TextView)myContentsView.findViewById(R.id.monthlyPayVal));
             monthly_pay.setText(String.valueOf(property.getMonthly_pay()));
+
+            Button delete =(Button) myContentsView.findViewById(R.id.deletBtn);
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    System.out.println("delete button clicked");
+                    properties.remove(property);
+                }
+            });
 
             return myContentsView;
         }

@@ -19,14 +19,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.plus.PlusOneButton;
 
-/**
- * A fragment with a Google +1 button.
- * Activities that contain this fragment must implement the
- * {@link PropertyFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PropertyFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PropertyFragment extends Fragment {
 
     private static String[] states_array;

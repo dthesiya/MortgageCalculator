@@ -1,0 +1,152 @@
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tableLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+    <TableRow
+        android:id="@+id/typeRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+       >
+
+        <TextView
+            android:id="@+id/typeText"
+            android:text="@string/type"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+        <TextView
+            android:id="@+id/typeVal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/addressRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+       >
+
+        <TextView
+            android:id="@+id/addressText"
+            android:text="@string/address"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+        <TextView
+            android:id="@+id/addressVal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/cityRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+       >
+
+        <TextView
+            android:id="@+id/cityText"
+            android:text="@string/city"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+        <TextView
+            android:id="@+id/cityVal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/loanAmntRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+       >
+
+        <TextView
+            android:id="@+id/loanAmntText"
+            android:text="@string/loan_amnt"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+        <TextView
+            android:id="@+id/loanAmntVal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+    </TableRow>
+    <TableRow
+        android:id="@+id/aprRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+       >
+
+        <TextView
+            android:id="@+id/aprText"
+            android:text="@string/apr"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+        <TextView
+            android:id="@+id/aprVal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+             />
+
+    </TableRow>
+    <TableRow
+        android:id="@+id/monthlyPayRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+       >
+
+        <TextView
+            android:id="@+id/monthlyPayText"
+            android:text="@string/monthly_pay"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+             />
+
+        <TextView
+            android:id="@+id/monthlyPayVal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/buttonRow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="3dp"
+        >
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:id="@+id/editBtn"
+                android:text="@string/edit"
+                android:layout_width="100dp"
+                android:layout_height="50dp" />
+
+            <Button
+                android:id="@+id/deletBtn"
+                android:text="@string/delete"
+                android:layout_width="100dp"
+                android:layout_height="50dp"/>
+
+        </LinearLayout>
+
+
+    </TableRow>
+</TableLayout>
