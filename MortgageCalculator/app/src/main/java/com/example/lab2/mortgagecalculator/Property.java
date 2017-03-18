@@ -2,11 +2,13 @@ package com.example.lab2.mortgagecalculator;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
+
 /**
  * Created by vicky on 3/15/2017.
  */
 
-public class Property {
+public class Property implements Serializable{
 
     private String type;
     private String address;

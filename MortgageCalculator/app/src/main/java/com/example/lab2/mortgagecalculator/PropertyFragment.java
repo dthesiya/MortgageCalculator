@@ -23,6 +23,7 @@ public class PropertyFragment extends Fragment {
 
     private static String[] states_array;
     private boolean isProperty = false, isLoan = false;
+    private static final String TAG_CURRENT_PROPERTY = "currProperty";
 
     public PropertyFragment() {
     }
@@ -35,6 +36,13 @@ public class PropertyFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         states_array = getResources().getStringArray(R.array.states_array);
+
+        Bundle bundle = getArguments();
+        if(bundle != null){
+            Property property= (Property) bundle.getSerializable(TAG_CURRENT_PROPERTY);
+            System.out.println(property.getCity());
+        }
+
     }
 
     @Override
