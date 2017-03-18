@@ -31,23 +31,19 @@ public class PropertyFragment extends Fragment {
 
     private Property property;
 
-    private static PropertyFragment this_fragment;
+
+    // VIKAS
+    private static final String TAG_CURRENT_PROPERTY = "currProperty";
 
     public PropertyFragment() {
     }
 
     public static PropertyFragment newInstance() {
-        if(this_fragment == null){
-            this_fragment = new PropertyFragment();
-        }
-        this_fragment.property = null;
-        return this_fragment;
+        return new PropertyFragment();
     }
 
     public static PropertyFragment newInstance(Property property) {
-        if(this_fragment == null){
-            this_fragment = new PropertyFragment();
-        }
+        PropertyFragment this_fragment = new PropertyFragment();
         this_fragment.property = property;
         return this_fragment;
     }
@@ -56,6 +52,14 @@ public class PropertyFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         states_array = getResources().getStringArray(R.array.states_array);
+
+        // VIKAS
+//        Bundle bundle = getArguments();
+//        if(bundle != null){
+//            Property property= (Property) bundle.getSerializable(TAG_CURRENT_PROPERTY);
+//            System.out.println(property.getCity());
+//        }
+
     }
 
     @Override
@@ -221,19 +225,15 @@ public class PropertyFragment extends Fragment {
     }
 
     public static void fillPropertyDetails(View view, Property property){
-        switch(property.getType()){
-            case "House":{
-                RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton1);
-                rb.setChecked(true);
-            }
-            case "Town House":{
-                RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton2);
-                rb.setChecked(true);
-            }
-            case "Condo":{
-                RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton3);
-                rb.setChecked(true);
-            }
+        if("House".equals(property.getType())){
+            RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton1);
+            rb.setChecked(true);
+        }else if("Townhouse".equals(property.getType())){
+            RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton2);
+            rb.setChecked(true);
+        }else if("Condo".equals(property.getType())){
+            RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton3);
+            rb.setChecked(true);
         }
         ((EditText) view.findViewById(R.id.editText1)).setText(property.getAddress());
         ((EditText) view.findViewById(R.id.editText2)).setText(property.getCity());

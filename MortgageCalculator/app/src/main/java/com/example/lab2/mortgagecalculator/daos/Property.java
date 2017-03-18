@@ -2,6 +2,9 @@ package com.example.lab2.mortgagecalculator.daos;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
@@ -24,7 +27,18 @@ public class Property implements Serializable{
 
     private double result;
 
-    private LatLng latlng;
+    private transient LatLng latlng = new LatLng(37.333326, -121.884589);
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeDouble(latlng.latitude);
+        out.writeDouble(latlng.longitude);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        latlng= new LatLng(in.readDouble(), in.readDouble());
+    }
 
     public int getId() {
         return id;

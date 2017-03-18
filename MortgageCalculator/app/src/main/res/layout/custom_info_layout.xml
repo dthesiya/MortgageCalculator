@@ -121,32 +121,4 @@
             />
 
     </TableRow>
-
-    <TableRow
-        android:id="@+id/buttonRow"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="3dp"
-        >
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <Button
-                android:id="@+id/editBtn"
-                android:text="@string/edit"
-                android:layout_width="100dp"
-                android:layout_height="50dp" />
-
-            <Button
-                android:id="@+id/deletBtn"
-                android:text="@string/delete"
-                android:layout_width="100dp"
-                android:layout_height="50dp"/>
-
-        </LinearLayout>
-
-
-    </TableRow>
 </TableLayout>

@@ -32,7 +32,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
-    private NavigationView nvDrawer;
+    static NavigationView nvDrawer;
 
     static PropertyDAO db;
 
@@ -68,9 +68,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager = getFragmentManager();
         mRetainedFragment = (Fragment) fragmentManager.findFragmentByTag(TAG_RETAINED_FRAGMENT);
         if (mRetainedFragment == null) {
-            List<Property> list = db.getProperties();
-            System.out.println(list.size());
-            selectDrawerItem(nvDrawer.getMenu().getItem(0), list.size() > 0 ? list.get(0) : null);
+            selectDrawerItem(nvDrawer.getMenu().getItem(0), null);
         }
 
         mDrawer.setDrawerListener(new DrawerLayout.DrawerListener() {

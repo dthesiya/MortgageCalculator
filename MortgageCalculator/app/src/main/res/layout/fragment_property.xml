@@ -88,7 +88,7 @@
                                             android:layout_weight="1" />
 
                                         <RadioButton
-                                            android:text="TownHouse"
+                                            android:text="Townhouse"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:id="@+id/radioButton2"
