@@ -1,10 +1,9 @@
 package com.example.lab2.mortgagecalculator;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
-import android.database.DataSetObserver;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,23 +11,45 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.gms.plus.PlusOneButton;
+import com.example.lab2.mortgagecalculator.daos.Property;
+
+import java.util.Arrays;
 
 public class PropertyFragment extends Fragment {
 
     private static String[] states_array;
-    private boolean isProperty = false, isLoan = false;
+    private boolean isProperty = false, isLoan = false, isCalculated = false;
+
+    private Property property;
+
+    private static PropertyFragment this_fragment;
 
     public PropertyFragment() {
     }
 
     public static PropertyFragment newInstance() {
-        return new PropertyFragment();
+        if(this_fragment == null){
+            this_fragment = new PropertyFragment();
+        }
+        this_fragment.property = null;
+        return this_fragment;
+    }
+
+    public static PropertyFragment newInstance(Property property) {
+        if(this_fragment == null){
+            this_fragment = new PropertyFragment();
+        }
+        this_fragment.property = property;
+        return this_fragment;
     }
 
     @Override
@@ -41,12 +62,20 @@ public class PropertyFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_property, container, false);
+        final View view = inflater.inflate(R.layout.fragment_property, container, false);
 
+        final TextView result = (TextView) view.findViewById(R.id.monthly_pay);
+        result.setVisibility(View.GONE);
 
-        TextView property = (TextView) view.findViewById(R.id.property_text);
+        //fill property details in case of edit property/loan
+        if(property != null){
+            fillPropertyDetails(view, property);
+            isCalculated = true;
+        }
+
+        TextView property_txtview = (TextView) view.findViewById(R.id.property_text);
         final LinearLayout property_layout = (LinearLayout) view.findViewById(R.id.property_layout);
-        property.setOnClickListener(new View.OnClickListener() {
+        property_txtview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!isProperty){
@@ -58,9 +87,9 @@ public class PropertyFragment extends Fragment {
             }
         });
 
-        TextView loan = (TextView) view.findViewById(R.id.loan_text);
+        TextView loan_txtview = (TextView) view.findViewById(R.id.loan_text);
         final LinearLayout loan_layout = (LinearLayout) view.findViewById(R.id.loan_layout);
-        loan.setOnClickListener(new View.OnClickListener() {
+        loan_txtview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!isLoan){
@@ -77,7 +106,177 @@ public class PropertyFragment extends Fragment {
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_spinner_item, states_array);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         states.setAdapter(spinnerArrayAdapter);
+
+        ((Button) view.findViewById(R.id.new_btn)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(getActivity())
+                        .setMessage("Do you really want to reset?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                clearPropertyDetails(view);
+                            }})
+                        .setNegativeButton(android.R.string.no, null).show();
+            }
+        });
+
+        result.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                result.setVisibility(View.GONE);
+            }
+        });
+
+        ((Button) view.findViewById(R.id.calculate_btn)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Property temp = getLoanDetails(view, property);
+                if(temp != null){
+                    property = temp;
+                    result.setVisibility(View.VISIBLE);
+                }else{
+                    result.setVisibility(View.GONE);
+                    Toast.makeText(getActivity(), "Please fill all the Loan details", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        ((Button) view.findViewById(R.id.save_btn)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Property temp = getPropertyDetails(view, property);
+                if(temp != null){
+                    property = temp;
+                    if(property.getId() > 0){
+                        MainActivity.db.updateProperty(property);
+                    }else{
+                        MainActivity.db.insertProperty(property);
+                    }
+                }else{
+                    Toast.makeText(getActivity(), "Please fill all the details", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         return view;
+    }
+
+    public static Property getLoanDetails(View view, Property property){
+        if(property == null){
+            property = new Property();
+        }
+
+        String loan_amt = ((EditText) view.findViewById(R.id.editText8)).getText().toString();
+        String down_pay = ((EditText) view.findViewById(R.id.editText9)).getText().toString();
+        String apr = ((EditText) view.findViewById(R.id.editText10)).getText().toString();
+
+        if(loan_amt.trim().isEmpty() || down_pay.trim().isEmpty() || apr.trim().isEmpty()){
+            return null;
+        }
+        property.setLoan_amt(Double.valueOf(loan_amt));
+        property.setDown_pay(Double.valueOf(down_pay));
+        property.setApr(Double.valueOf(apr));
+
+        RadioGroup rg_term = (RadioGroup) view.findViewById(R.id.radioGroup2);
+        int radioTermID = rg_term.getCheckedRadioButtonId();
+        if(radioTermID < 0){
+            return null;
+        }
+        property.setTerm(radioTermID == 0 ? 15 : 30);
+        return property;
+    }
+
+    public static Property getPropertyDetails(View view, Property property){
+        if(property == null){
+            property = new Property();
+        }
+        RadioGroup rg_type = (RadioGroup)view.findViewById(R.id.radioGroup1);
+        int radioTypeID = rg_type.getCheckedRadioButtonId();
+        if(radioTypeID < 0){
+            return null;
+        }
+        RadioButton radioType = (RadioButton) rg_type.findViewById(radioTypeID);
+        property.setType(radioType.getText().toString());
+
+        String address = ((EditText) view.findViewById(R.id.editText1)).getText().toString();
+        String city = ((EditText) view.findViewById(R.id.editText2)).getText().toString();
+        String zipcode = ((EditText) view.findViewById(R.id.editText4)).getText().toString();
+
+        if(address.trim().isEmpty() || city.trim().isEmpty() || zipcode.trim().isEmpty()){
+            return null;
+        }
+
+        property.setAddress(address);
+        property.setCity(city);
+        property.setZipcode(zipcode);
+
+        Spinner spinner = (Spinner) view.findViewById(R.id.spinner1);
+        property.setState(states_array[spinner.getSelectedItemPosition()]);
+
+        property = getLoanDetails(view, property);
+
+        return property;
+    }
+
+    public static void fillPropertyDetails(View view, Property property){
+        switch(property.getType()){
+            case "House":{
+                RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton1);
+                rb.setChecked(true);
+            }
+            case "Town House":{
+                RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton2);
+                rb.setChecked(true);
+            }
+            case "Condo":{
+                RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton3);
+                rb.setChecked(true);
+            }
+        }
+        ((EditText) view.findViewById(R.id.editText1)).setText(property.getAddress());
+        ((EditText) view.findViewById(R.id.editText2)).setText(property.getCity());
+        ((EditText) view.findViewById(R.id.editText4)).setText(property.getZipcode());
+        int state_index = Arrays.binarySearch(states_array, property.getState());
+        if(state_index >= 0){
+            ((Spinner) view.findViewById(R.id.spinner1)).setSelection(state_index);
+        }
+
+        ((EditText) view.findViewById(R.id.editText8)).setText(String.valueOf(property.getLoan_amt()));
+        ((EditText) view.findViewById(R.id.editText9)).setText(String.valueOf(property.getDown_pay()));
+        ((EditText) view.findViewById(R.id.editText10)).setText(String.valueOf(property.getApr()));
+
+        if(property.getTerm() == 15){
+            RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton5);
+            rb.setChecked(true);
+        }else{
+            RadioButton rb = (RadioButton) view.findViewById(R.id.radioButton6);
+            rb.setChecked(true);
+        }
+    }
+
+    public static void clearPropertyDetails(View view){
+        RadioGroup rg_type = (RadioGroup)view.findViewById(R.id.radioGroup1);
+        int radioTypeID = rg_type.getCheckedRadioButtonId();
+        if(radioTypeID >= 0){
+            ((RadioButton) rg_type.findViewById(radioTypeID)).setChecked(false);
+        }
+
+        ((EditText) view.findViewById(R.id.editText1)).setText("");
+        ((EditText) view.findViewById(R.id.editText2)).setText("");
+        ((EditText) view.findViewById(R.id.editText4)).setText("");
+        ((Spinner) view.findViewById(R.id.spinner1)).setSelection(0);
+
+        ((EditText) view.findViewById(R.id.editText8)).setText("");
+        ((EditText) view.findViewById(R.id.editText9)).setText("");
+        ((EditText) view.findViewById(R.id.editText10)).setText("");
+
+        RadioGroup rg_term = (RadioGroup)view.findViewById(R.id.radioGroup2);
+        int radioTermID = rg_term.getCheckedRadioButtonId();
+        if(radioTermID >= 0){
+            ((RadioButton) rg_term.findViewById(radioTermID)).setChecked(false);
+        }
     }
 
     public static void expand(final View v) {

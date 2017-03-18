@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -23,10 +24,17 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.Toast;
 
+import com.example.lab2.mortgagecalculator.daos.Property;
+import com.example.lab2.mortgagecalculator.daos.PropertyDAO;
+
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
     private NavigationView nvDrawer;
+
+    static PropertyDAO db;
 
     private static final String TAG_RETAINED_FRAGMENT = "RetainedFragment";
 
@@ -35,12 +43,18 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment mRetainedFragment;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(db == null){
+            db = new PropertyDAO(this);
+        }
         setContentView(R.layout.activity_main);
         // Set a Toolbar to replace the ActionBar.
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setElevation(30);
         setSupportActionBar(toolbar);
         // Find our drawer view
         mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -54,9 +68,32 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager = getFragmentManager();
         mRetainedFragment = (Fragment) fragmentManager.findFragmentByTag(TAG_RETAINED_FRAGMENT);
         if (mRetainedFragment == null) {
-            selectDrawerItem(nvDrawer.getMenu().getItem(0));
+            List<Property> list = db.getProperties();
+            System.out.println(list.size());
+            selectDrawerItem(nvDrawer.getMenu().getItem(0), list.size() > 0 ? list.get(0) : null);
         }
 
+        mDrawer.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                hideSoftKeyboard(MainActivity.this);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -64,31 +101,24 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem);
+                        selectDrawerItem(menuItem, null);
                         return true;
                     }
                 });
     }
 
-    public void selectDrawerItem(MenuItem menuItem) {
+    public void selectDrawerItem(MenuItem menuItem, Property property) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
-        Class fragmentClass;
         switch (menuItem.getItemId()) {
             case R.id.nav_first_fragment:
-                fragmentClass = PropertyFragment.class;
+                fragment = (property == null) ? PropertyFragment.newInstance() : PropertyFragment.newInstance(property);
                 break;
             case R.id.nav_second_fragment:
-                fragmentClass = MapFragment.class;
+                fragment = MapFragment.newInstance();
                 break;
             default:
-                fragmentClass = PropertyFragment.class;
-        }
-
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
+                fragment = PropertyFragment.newInstance();
         }
 
         // Insert the fragment by replacing any existing fragment
@@ -101,6 +131,12 @@ public class MainActivity extends AppCompatActivity {
         // Close the navigation drawer
 
         mDrawer.closeDrawers();
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+        activity.getCurrentFocus().clearFocus();
     }
 
     @Override

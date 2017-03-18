@@ -23,6 +23,7 @@
     <string name="edit">Edit</string>
 
     <string name="new_button">NEW</string>
+    <string name="calculate_button">CALCULATE</string>
     <string name="save_button">SAVE</string>
 
     <string-array name="states_array">
