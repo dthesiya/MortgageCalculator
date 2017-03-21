@@ -122,11 +122,9 @@ public class MapFragment extends Fragment {
                     googleMap.animateCamera(cu);
                 }
 
-                googleMap.setInfoWindowAdapter(new MyInfoWindowAdapter(inflater));
-
                 googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                     @Override
-                    public boolean onMarkerClick(Marker marker) {
+                    public boolean onMarkerClick(final Marker marker) {
                         m = marker;
                         add.setVisibility(View.GONE);
                         delete.setVisibility(View.VISIBLE);
@@ -134,7 +132,7 @@ public class MapFragment extends Fragment {
                         delete.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                MainActivity.db.deleteProperty(((Property)m.getTag()).getId());
+                                System.out.println("delete: " + MainActivity.db.deleteProperty(((Property)m.getTag()).getId()));
                                 properties.remove(m.getTag());
                                 delete.setVisibility(View.GONE);
                                 m.remove();

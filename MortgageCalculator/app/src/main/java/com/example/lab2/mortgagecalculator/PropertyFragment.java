@@ -2,8 +2,11 @@ package com.example.lab2.mortgagecalculator;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +24,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.lab2.mortgagecalculator.daos.Property;
+import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Arrays;
 
 public class PropertyFragment extends Fragment {
@@ -139,7 +152,17 @@ public class PropertyFragment extends Fragment {
                 Property temp = getLoanDetails(view, property);
                 if(temp != null){
                     property = temp;
-                    result.setVisibility(View.VISIBLE);
+                    double princ = property.getLoan_amt() - property.getDown_pay();
+                    if(princ < 0){
+                        Toast.makeText(getActivity(), "Please fill higher loan amount value than down payment", Toast.LENGTH_SHORT).show();
+                    }else{
+                        double apr = property.getApr() / 1200;
+                        int terms = property.getTerm() * 12;
+                        double monthly_payment = Math.round(((apr * princ) * 1000 / (1 - Math.pow((1 + apr), (-1 * terms))))) / 1000;
+                        result.setText("Monthly Payment: " + monthly_payment);
+                        property.setResult(monthly_payment);
+                        result.setVisibility(View.VISIBLE);
+                    }
                 }else{
                     result.setVisibility(View.GONE);
                     Toast.makeText(getActivity(), "Please fill all the Loan details", Toast.LENGTH_SHORT).show();
@@ -153,6 +176,14 @@ public class PropertyFragment extends Fragment {
                 Property temp = getPropertyDetails(view, property);
                 if(temp != null){
                     property = temp;
+                    GeoCoder geoCoder = new GeoCoder();
+                    geoCoder.setContext(getContext());
+                    try {
+                        LatLng latLong = geoCoder.execute(property).get();
+                        property.setLatlng(latLong);
+                    }catch(Exception ex){
+                        ex.printStackTrace();
+                    }
                     if(property.getId() > 0){
                         MainActivity.db.updateProperty(property);
                     }else{
@@ -344,5 +375,77 @@ public class PropertyFragment extends Fragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
+}
 
+class GeoCoder extends AsyncTask<Property, Void, LatLng>{
+    ProgressDialog progressDialog;
+    Context context;
+
+    public void setContext(Context context){
+        this.context = context;
+    }
+
+    @Override
+    protected LatLng doInBackground(Property... params) {
+        LatLng result = null;
+        try {
+            Property prop = params[0];
+            String address = prop.getAddress() + ",+" + prop.getCity() + ",+" + prop.getState();
+            HttpURLConnection urlConnection = null;
+            URL url = null;
+            JSONObject object = null;
+            InputStream inStream = null;
+            String urlString = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace(' ', '+');
+            try {
+                url = new URL(urlString);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setDoOutput(true);
+                urlConnection.setDoInput(true);
+                urlConnection.connect();
+                inStream = urlConnection.getInputStream();
+                BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+                String temp, response = "";
+                while ((temp = bReader.readLine()) != null) {
+                    response += temp;
+                }
+                object = (JSONObject) new JSONTokener(response).nextValue();
+                if(object != null){
+                    JSONObject json = object.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
+                    result = new LatLng(json.getDouble("lat"), json.getDouble("lng"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (inStream != null) {
+                    try {
+                        // this will close the bReader as well
+                        inStream.close();
+                    } catch (IOException ignored) {
+                    }
+                }
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
+    @Override
+    protected void onPostExecute(LatLng result) {
+        // execution of result of Long time consuming operation
+        progressDialog.dismiss();
+    }
+
+
+    @Override
+    protected void onPreExecute() {
+        progressDialog = ProgressDialog.show(context,
+                "ProgressDialog",
+                "Wait for the result");
+    }
 }
