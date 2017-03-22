@@ -65,14 +65,6 @@ public class PropertyFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         states_array = getResources().getStringArray(R.array.states_array);
-
-        // VIKAS
-//        Bundle bundle = getArguments();
-//        if(bundle != null){
-//            Property property= (Property) bundle.getSerializable(TAG_CURRENT_PROPERTY);
-//            System.out.println(property.getCity());
-//        }
-
     }
 
     @Override
@@ -189,6 +181,8 @@ public class PropertyFragment extends Fragment {
                     }else{
                         MainActivity.db.insertProperty(property);
                     }
+                    clearPropertyDetails(view);
+                    Toast.makeText(getActivity(), "Property Saved", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(getActivity(), "Please fill all the details", Toast.LENGTH_SHORT).show();
                 }
@@ -219,7 +213,7 @@ public class PropertyFragment extends Fragment {
         if(radioTermID < 0){
             return null;
         }
-        property.setTerm(radioTermID == 0 ? 15 : 30);
+        property.setTerm(radioTermID == R.id.radioButton5 ? 15 : 30);
         return property;
     }
 
